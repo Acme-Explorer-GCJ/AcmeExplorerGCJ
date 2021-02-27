@@ -1,0 +1,24 @@
+{
+    "name": "AcmeExplorer GCJ",
+    "version": "1.0.0",
+    "description": "ACMEMarket REST API",
+    "main": "app.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/Acme-Explorer-GCJ/AcmeExplorerGCJ.git"
+    },
+    "author": "Carlos Gallego, Giuliano Mirabella y Julia Palacios",
+    "license": "ISC",
+    "bugs": {
+      "url": "https://github.com/Acme-Explorer-GCJ/AcmeExplorerGCJ/issues"
+    },
+    "homepage": "https://github.com/Acme-Explorer-GCJ/AcmeExplorerGCJ#readme",
+    "dependencies": {
+      "express": "^4.16.4",
+      "mongoose": "^5.4.8"
+    }
+  }
+  
