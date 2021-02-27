@@ -3,8 +3,8 @@ var express = require('express'),
   port = process.env.PORT || 8080,
   mongoose = require('mongoose'),
   Actor = require('./api/models/actorModel'),
-  Item = require('./api/models/itemModel'),
-  Order = require('./api/models/orderModel'),
+  Trip = require('./api/models/tripModel'),
+  ApplyTrip = require('./api/models/applyTripModel'),
   bodyParser = require('body-parser');
 
 // MongoDB URI building
@@ -30,13 +30,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 var routesActors = require('./api/routes/actorRoutes');
-var routesItems = require('./api/routes/itemRoutes'); 
-var routesOrders = require('./api/routes/orderRoutes');
+var routesTrip = require('./api/routes/tripRoutes'); 
+var routesApplyTrip = require('./api/routes/applyTripRoutes');
 
 
 routesActors(app);
-routesItems(app);
-routesOrders(app);
+routesTrip(app);
+routesApplyTrip(app);
 
 
 console.log("Connecting DB to: " + mongoDBURI);
