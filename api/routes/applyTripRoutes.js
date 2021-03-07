@@ -1,13 +1,47 @@
 'use strict';
 module.exports = function(app) {
-  var applyTrip = require('../controllers/applyTripController');
+  var applications = require('../controllers/applyTripController');
   
-  app.route('/applyTrips')
-	  .get(applyTrip.list_all_applications)
-	  .post(applyTrip.create_an_application);
+  /**
+   * Manage catalogue of applications: 
+   * Post applications
+   *    RequiredRoles: Administrator
+   * Get applications
+   *    RequiredRoles: Administrator
+   *
+   * @section applications
+   * @type put 
+   * @url /v1/applications
+  */
+  app.route('/v1/applications')
+	  .get(applications.list_all_applications)
+	  .post(applications.create_application);
+    
+  /**
+   * get results from a search of applications groupBy title
+   *    RequiredRoles: None
+   *
+   * @section applications
+   * @type get
+   * @url /v1/applications/search
+   * @param {string} sortedBy (title)
+  */
+    app.route('/v1/applications/search')
+    .get(applications.search_application);
 	
-  app.route('/applyTrip/:applyTripId')
-    .get(applyTrip.read_an_application) 
-    .put(applyTrip.update_an_application) 
-    .delete(applyTrip.delete_an_application);
+  /**
+   * Read, update or delete an application: 
+   * Delete an application
+   *    RequiredRoles: Administrator
+   * Get an application
+   *    RequiredRoles: Administrator
+   *
+   * @section applications
+   * @type get put delete
+   * @url /v1/applications/:applicationId
+  */
+   app.route('/v1/applications/:applicationId')
+    .get(applications.read_application) 
+    .put(applications.update_application) 
+    .delete(applications.delete_application);
 };

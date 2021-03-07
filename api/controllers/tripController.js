@@ -2,10 +2,10 @@
 
 /*---------------TRIP----------------------*/
 var mongoose = require('mongoose'),
-  Item = mongoose.model('Trips');
+  Trip = mongoose.model('Trips');
 
 exports.list_all_trips = function(req, res) {
-  Item.find(function(err, trips) {
+  Trip.find(function(err, trips) {
     if (err){
       res.send(err);
     }
@@ -17,7 +17,7 @@ exports.list_all_trips = function(req, res) {
 
 
 exports.create_a_trip = function(req, res) {
-  var new_trip = new Item(req.body);
+  var new_trip = new Trip(req.body);
   new_trip.save(function(err, trip) {
     if (err){
       res.send(err);
@@ -28,9 +28,29 @@ exports.create_a_trip = function(req, res) {
   });
 };
 
+exports.search_trip = function(req, res) {
+  //Check if title param exists (title: req.query.title)
+  //Search depending on params but only if deleted = false
+  console.log('Searching a trip depending on params');
+  var title = req.query.title;
+  if (!title) {
+    logger.warn("New trip GET request without title, sending 400...");
+    res.sendStatus(400); // bad request
+  } else {
+    Trip.find({ title:req.query.title }, function (err, trips) {
+      if (err){
+        res.send(err);
+      }
+      else{
+        res.json(trips);
+      }
+    });
+  };
+};
+
 
 exports.read_a_trip = function(req, res) {
-    Item.findById(req.params.tripId, function(err, trip) {
+    Trip.findById(req.params.tripId, function(err, trip) {
       if (err){
         res.send(err);
       }
@@ -42,7 +62,7 @@ exports.read_a_trip = function(req, res) {
 
 
 exports.update_a_trip = function(req, res) {
-    Item.findOneAndUpdate({_id: req.params.tripId}, req.body, {new: true}, function(err, item) {
+    Trip.findOneAndUpdate({_id: req.params.tripId}, req.body, {new: true}, function(err, trip) {
       if (err){
         res.send(err);
       }
@@ -53,12 +73,12 @@ exports.update_a_trip = function(req, res) {
 };
 
 exports.delete_a_trip = function(req, res) {
-    Item.remove({_id: req.params.tripId}, function(err, trip) {
+    Trip.remove({_id: req.params.tripId}, function(err, trip) {
         if (err){
             res.send(err);
         }
         else{
-            res.json({ message: 'Item successfully deleted' });
+            res.json({ message: 'Trip successfully deleted' });
         }
     });
 };
@@ -91,6 +111,25 @@ exports.create_a_stage = function(req, res) {
   });
 };
 
+exports.search_stage = function(req, res) {
+  //Check if title param exists (title: req.query.title)
+  //Search depending on params but only if deleted = false
+  console.log('Searching a stage depending on params');
+  var title = req.query.title;
+  if (!title) {
+    logger.warn("New stage GET request without title, sending 400...");
+    res.sendStatus(400); // bad request
+  } else {
+    Stage.find({ title:req.query.title }, function (err, stages) {
+      if (err){
+        res.send(err);
+      }
+      else{
+        res.json(stages);
+      }
+    });
+  };
+};
 
 exports.read_a_stage = function(req, res) {
   Stage.findById(req.params.stageId, function(err, stage) {

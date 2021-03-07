@@ -8,22 +8,21 @@ var express = require('express'),
   bodyParser = require('body-parser');
 
 // MongoDB URI building
-//var mongoDBHostname = process.env.mongoDBHostname || "localhost";
-//var mongoDBPort = process.env.mongoDBPort || "27017";
-//var mongoDBName = process.env.mongoDBName || "ACME-Market";
-//var mongoDBURI = "mongodb://" + mongoDBHostname + ":" + mongoDBPort + "/" + mongoDBName;
-//¿Cómo podemos hacer la conexión con el puerto si no lo tenemos?
-var mongoDBURI = "mongodb+srv://admin:BACKacme1@cluster0.ugodt.mongodb.net/acme_explorer?retryWrites=true&w=majority"
+var mongoDBHostname = process.env.mongoDBHostname || "localhost";
+var mongoDBPort = process.env.mongoDBPort || "27017";
+var mongoDBName = process.env.mongoDBName || "ACME-Explorer";
+var mongoDBURI = "mongodb://" + mongoDBHostname + ":" + mongoDBPort + "/" + mongoDBName;
 
 
 mongoose.connect(mongoDBURI, {
-    reconnectTries: 10,
-    reconnectInterval: 500,
+    // reconnectTries: 10,
+    // reconnectInterval: 500,
     poolSize: 10, // Up to 10 sockets
     connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
     socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
     family: 4, // skip trying IPv6
-    useNewUrlParser: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
