@@ -2,6 +2,10 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+var en = require("nanoid-good/locale/en"); // you should add locale of your preferred language
+var customAlphabet  = require("nanoid-good").customAlphabet(en);
+const dateFormat = require('dateformat');
+
 var RequirementSchema = new Schema({
   name: {
     type: String,
@@ -36,8 +40,15 @@ var PictureSchema = new Schema({
 var TripSchema = new Schema({
   ticker: {
    type: String,
-   required: 'Trip ticker required'
-  },
+   unique: true,
+   //This validation does not run after middleware pre-save
+   validate: {
+    validator: function(v) {
+        return /\d{6}-\w{6}/.test(v);
+    },
+    message: 'ticker is not valid!, Pattern("\d(6)-\w(6)")'
+  }
+},
   title: {
     type: String,
     required: 'Trip title required'
@@ -65,5 +76,18 @@ requirements: [RequirementSchema],
 pictures: [PictureSchema]
 }, { strict: false });
 
+// Execute before each item.save() call
+TripSchema.pre('save', function(callback) {
+  var new_trip = this;
+  var date = new Date;
+  var day=dateFormat(new Date(), "yymmdd");
+
+  var generator = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 6);
+  var generatedTickerPart = generator();
+  var generated_ticker = [day, generatedTickerPart].join('-');
+  
+  new_trip.ticker = generated_ticker;
+  callback();
+});
 module.exports = mongoose.model('Trips', TripSchema);
 module.exports = mongoose.model('Stages', StageSchema);

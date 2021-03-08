@@ -22,9 +22,9 @@ exports.list_all_actors = function(req, res) {
 
 exports.create_an_actor = function(req, res) {
   var new_actor = new Actor(req.body);
-  // If new_actor is a customer, validated = true;
-  // If new_actor is a clerk, validated = false;
-  if ((new_actor.role.includes( 'CLERK' ))) {
+  // If new_actor is a manager, validated = true;
+  // If new_actor is a explorer, validated = false;
+  if ((new_actor.role.includes( 'EXPLORER' ))) {
     new_actor.validated = false;
   } else {
     new_actor.validated = true;

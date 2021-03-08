@@ -7,7 +7,8 @@ var mongoose = require('mongoose'),
 exports.list_all_trips = function(req, res) {
   Trip.find(function(err, trips) {
     if (err){
-      res.send(err);
+      console.log(Date() + " - " + err);
+      res.sendStatus(500);
     }
     else{
       res.json(trips);
@@ -20,7 +21,8 @@ exports.create_a_trip = function(req, res) {
   var new_trip = new Trip(req.body);
   new_trip.save(function(err, trip) {
     if (err){
-      res.send(err);
+      console.log(Date() + " - " + err);
+      res.sendStatus(500);
     }
     else{
       res.json(trip);
