@@ -1,0 +1,364 @@
+{
+	"info": {
+		"_postman_id": "60cd9e20-cbf1-4348-99c3-addde98fcffb",
+		"name": "ASS local",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Actor",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Name2\",\n    \"surname\": \"Surname2\",\n    \"email\": \"email2@gmail.com\",\n    \"password\": \"password1\",\n    \"preferredLanguage\": \"en\",\n    \"phone\": \"12345678\",\n    \"address\": \"address1\",\n    \"role\": \"EXPLORER\",\n    \"validated\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/v1/actors",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"actors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Application",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"startMoment\": \"2020-01-01\",\n    \"status\": \"PENDING\",\n    \"cancellationReason\": \"reason2\",\n    \"comment\": \"comment2\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/v1/applications",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Trip",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ticker\": \"ticker2\",\n    \"title\": \"title2\",\n    \"description\": \"description2\",\n    \"price\": 12345678,\n    \"dateStart\": \"2020-01-01\",\n    \"dateEnd\": \"2021-01-01\",\n    \"cancellationMoment\": \"2020-01-01\",\n    \"cancellationReason\": \"2020-01-01\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/v1/trips",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"trips"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read Actors",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/v1/actors",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"actors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read Applications",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/v1/applications/604511e8dc130e0e33a55e41",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"applications",
+						"604511e8dc130e0e33a55e41"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read Trips",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/v1/trips",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"trips"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Application",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/v1/applications/search?status=PENDING",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"applications",
+						"search"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "PENDING"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Trip",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/v1/trips/search?title=title2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"trips",
+						"search"
+					],
+					"query": [
+						{
+							"key": "title",
+							"value": "title2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Actor",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"NewName\",\n    \"surname\": \"NewSurname\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/v1/actors/60450e98efd6e406c5bb7e5c",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"actors",
+						"60450e98efd6e406c5bb7e5c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Application",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"comment\": \"newComment\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/v1/applications/60451205dc130e0e33a55e42",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"applications",
+						"60451205dc130e0e33a55e42"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Trip",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"newTitle\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/v1/trips/60451bfd3e1fe0299c29d3ae",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"trips",
+						"60451bfd3e1fe0299c29d3ae"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Actor",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/v1/actors/60451028d0f4a20ce07295b9",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"actors",
+						"60451028d0f4a20ce07295b9"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Application",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/v1/applications/60451205dc130e0e33a55e42",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"applications",
+						"60451205dc130e0e33a55e42"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Trip",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/v1/trips/60451bfd3e1fe0299c29d3ae",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"trips",
+						"60451bfd3e1fe0299c29d3ae"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
