@@ -8,6 +8,11 @@ var express = require('express'),
   bodyParser = require('body-parser');
 
 // MongoDB URI building
+
+/*var mongoDBUser = process.env.mongoDBUser || "yulipala";
+var mongoDBPass = process.env.mongoDBPass || "jZAb9EXS0yCxX9Ks";
+var mongoDBCredentials = (mongoDBUser && mongoDBPass) ? mongoDBUser + ":" + mongoDBPass + "@" : "";*/
+
 var mongoDBHostname = process.env.mongoDBHostname || "localhost";
 var mongoDBPort = process.env.mongoDBPort || "27017";
 var mongoDBName = process.env.mongoDBName || "ACME-Explorer";
@@ -31,11 +36,14 @@ app.use(bodyParser.json());
 var routesActors = require('./api/routes/actorRoutes');
 var routesTrip = require('./api/routes/tripRoutes'); 
 var routesApplyTrip = require('./api/routes/applyTripRoutes');
+var routesStorage = require('./api/routes/storageRoutes');
 
 
 routesActors(app);
 routesTrip(app);
 routesApplyTrip(app);
+routesStorage(app);
+
 
 
 console.log("Connecting DB to: " + mongoDBURI);

@@ -89,5 +89,9 @@ TripSchema.pre('save', function(callback) {
   new_trip.ticker = generated_ticker;
   callback();
 });
+TripSchema.index({ dateStart: 1, price: 1 }); //1 ascending,  -1 descending
+TripSchema.index({ title: 'text', description: 'text'});
+
+
 module.exports = mongoose.model('Trips', TripSchema);
 module.exports = mongoose.model('Stages', StageSchema);
