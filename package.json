@@ -21,6 +21,7 @@
     "bcrypt": "^5.0.1",
     "dateformat": "^3.0.3",
     "express": "^4.17.1",
+    "firebase-admin": "^9.5.0",
     "mongoose": "^5.11.18",
     "nanoid": "^3.1.20",
     "nanoid-good": "^3.1.0"
