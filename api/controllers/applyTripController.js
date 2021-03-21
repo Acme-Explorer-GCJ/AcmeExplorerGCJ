@@ -5,23 +5,23 @@ var mongoose = require('mongoose'),
   ApplyTrip = mongoose.model('ApplyTrips');
 
 exports.list_all_applications = function(req, res) {
-  ApplyTrip.find({}, function(err, appl) {
+  ApplyTrip.find({}, function(err, application) {
     if (err){
-      res.send(err);
+      res.status(500).send(err);
     }
     else{
-      res.json(appl);
+      res.json(application);
     }
   });
 };
 
 exports.list_my_applications = function(req, res) {
-  ApplyTrip.find(function(err, appls) {
+  ApplyTrip.find(function(err, applications) {
     if (err){
-      res.send(err);
+      res.status(500).send(err);
     }
     else{
-      res.json(appls);
+      res.json(applications);
     }
   });
 };
@@ -30,68 +30,130 @@ exports.list_my_applications = function(req, res) {
 exports.create_application = function(req, res) {
   var new_appl = new ApplyTrip(req.body);
 
-  new_appl.save(function(error, appl) {
+  new_appl.save(function(error, application) {
     if (error){
-      res.send(error);
-    }
+      if(err.name=='ValidationError') {
+          res.status(422).send(err);
+        }
+        else{
+          res.status(500).send(err);
+        }
+      }
     else{
-      res.json(appl);
+      res.json(application);
     }
   });
 };
 
 exports.search_application = function(req, res) {
-  //Check if status param exists (status: req.query.status)
-  //Search depending on params but only if deleted = false
-  console.log('Searching an application depending on params');
-  var status = req.query.status;
-  if (!status) {
-    logger.warn("New application GET request without status, sending 400...");
-    res.sendStatus(400); // bad request
-  } else {
-    ApplyTrip.find({ status:req.query.status }, function (err, applications) {
-      if (err){
-        res.send(err);
-      } else {
-        res.json(applications);
-      }
-    });
-  };
-};
+  var query = {};
+  //if managerId is null, i.e. parameter is not in the URL, the search retrieves applications not assined to any manager
+  //else, the search retrieves applications assined to the specified application
+  query.manager = req.query.managerId;
 
-exports.read_application = function(req, res) {
-  ApplyTrip.findById(req.params.applicationId, function(err, appl) {
+  if (req.query.cancelled=="true") {
+    //retrieving applications with a cancellationMoment
+    query.cancellationMoment = { $exists: true }
+  }
+  if (req.query.cancelled=="false") {
+    //retrieving applications without a cancellationMoment
+    query.cancellationMoment = { $exists: false };
+  }
+  if (req.query.accepted=="true") {
+    //retrieving applications with a cancellationMoment
+    query.acceptanceMoment = { $exists: true }
+  }
+  if (req.query.accepted=="false") {
+    //retrieving applications without a cancellationMoment
+    query.acceptanceMoment = { $exists: false };
+  }
+
+  var skip=0;
+  if(req.query.startFrom){
+    skip = parseInt(req.query.startFrom);
+  }
+  var limit=0;
+  if(req.query.pageSize){
+    limit=parseInt(req.query.pageSize);
+  }
+
+  var sort="";
+  if(req.query.reverse=="true"){
+    sort="-";
+  }
+  if(req.query.sortedBy){
+    sort+=req.query.sortedBy;
+  }
+
+  console.log("Query: "+query+" Skip:" + skip+" Limit:" + limit+" Sort:" + sort);
+
+  ApplyTrip.find(query)
+       .sort(sort)
+       .skip(skip)
+       .limit(limit)
+       .lean()
+       .exec(function(err, application){
+    console.log('Start searching applications');
     if (err){
       res.send(err);
     }
     else{
-      res.json(appl);
+      res.json(application);
+    }
+    console.log('End searching applications');
+  });
+};
+
+exports.read_application = function(req, res) {
+  ApplyTrip.findById(req.params.applicationId, function(err, application) {
+    if (err){
+      res.status(500).send(err);
+    }
+    else{
+      res.json(application);
     }
   });
 };
 
 
 exports.update_application = function(req, res) {
-  ApplyTrip.findOneAndUpdate({_id: req.params.applicationId}, req.body, {new: true}, function(err, appl) {
+  //Check if the application has been previously assigned or not
+  //Assign the application to the proper manager that is requesting the assigment
+  //when updating delivery moment it must be checked the manager assignment and to check if it is the proper manager and if not: res.status(403); "an access token is valid, but requires more privileges"
+  ApplyTrip.findById(req.params.applicationId, function(err, application) {
     if (err){
-      res.send(err);
+      if(err.name=='ValidationError') {
+          res.status(422).send(err);
+      }
+      else{
+        res.status(500).send(err);
+      }
     }
     else{
-      res.json(appl);
-    }
+        ApplyTrip.findOneAndUpdate({_id: req.params.applicationId}, req.body, {new: true}, function(err, application) {
+          if (err){
+            res.status(500).send(err);
+          }
+          else{
+            res.json(application);
+          }
+        });
+      }
   });
 };
 
 
 exports.delete_application = function(req, res) {
-  ApplyTrip.remove({
-    _id: req.params.applicationId
-  }, function(err, appl) {
+  //Check if the application were delivered or not and delete it or not accordingly
+  //Check if the user is the proper customer that posted the application and if not: res.status(403); "an access token is valid, but requires more privileges"
+  ApplyTrip.deleteOne({
+    _id: req.params.orderId
+  }, function(err, application) {
     if (err){
-      res.send(err);
+      res.status(500).send(err);
     }
     else{
-      res.json({ message: 'Trip application successfully deleted' });
+      res.json({ message: 'ApplyTrip successfully deleted' });
     }
   });
 };

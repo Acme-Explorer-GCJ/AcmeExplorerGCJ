@@ -44,4 +44,7 @@ module.exports = function(app) {
     .get(applications.read_application) 
     .put(applications.update_application) 
     .delete(applications.delete_application);
+
+  app.route('/v1/myapplications')
+    .get(applications.list_my_applications) //añadir ownership para el EXPLORER
 };

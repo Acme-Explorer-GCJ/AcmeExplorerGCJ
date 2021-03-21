@@ -8,7 +8,7 @@ exports.list_all_trips = function(req, res) {
   Trip.find(function(err, trips) {
     if (err){
       console.log(Date() + " - " + err);
-      res.sendStatus(500);
+      res.status(500).send(err);
     }
     else{
       res.json(trips);
@@ -22,7 +22,12 @@ exports.create_a_trip = function(req, res) {
   new_trip.save(function(err, trip) {
     if (err){
       console.log(Date() + " - " + err);
-      res.sendStatus(500);
+      if(err.name=='ValidationError') {
+          res.status(422).send(err);
+      }
+      else{
+        res.status(500).send(err);
+      }
     }
     else{
       res.json(trip);
@@ -54,7 +59,7 @@ exports.search_trip = function(req, res) {
 exports.read_a_trip = function(req, res) {
     Trip.findById(req.params.tripId, function(err, trip) {
       if (err){
-        res.send(err);
+        res.status(500).send(err);
       }
       else{
         res.json(trip);
@@ -66,7 +71,12 @@ exports.read_a_trip = function(req, res) {
 exports.update_a_trip = function(req, res) {
     Trip.findOneAndUpdate({_id: req.params.tripId}, req.body, {new: true}, function(err, trip) {
       if (err){
-        res.send(err);
+        if(err.name=='ValidationError') {
+            res.status(422).send(err);
+        }
+        else{
+          res.status(500).send(err);
+        }
       }
       else{
         res.json(trip);
@@ -77,7 +87,7 @@ exports.update_a_trip = function(req, res) {
 exports.delete_a_trip = function(req, res) {
     Trip.remove({_id: req.params.tripId}, function(err, trip) {
         if (err){
-            res.send(err);
+          res.status(500).send(err);
         }
         else{
             res.json({ message: 'Trip successfully deleted' });
@@ -93,7 +103,7 @@ var mongoose = require('mongoose'),
 exports.list_all_stages = function(req, res) {
   Stage.find({}, function(err, stages) {
     if (err){
-      res.send(err);
+      res.status(500).send(err);
     }
     else{
       res.json(stages);
@@ -105,7 +115,12 @@ exports.create_a_stage = function(req, res) {
   var new_stage = new Stage(req.body);
   new_stage.save(function(err, stage) {
     if (err){
-      res.send(err);
+      if(err.name=='ValidationError') {
+          res.status(422).send(err);
+      }
+      else{
+        res.status(500).send(err);
+      }
     }
     else{
       res.json(stage);
@@ -147,7 +162,12 @@ exports.read_a_stage = function(req, res) {
 exports.update_a_stage = function(req, res) {
   Stage.findOneAndUpdate({_id: req.params.stageId}, req.body, {new: true}, function(err, stage) {
     if (err){
-      res.send(err);
+      if(err.name=='ValidationError') {
+          res.status(422).send(err);
+      }
+      else{
+        res.status(500).send(err);
+      }
     }
     else{
       res.json(stage);
@@ -158,7 +178,7 @@ exports.update_a_stage = function(req, res) {
 exports.delete_a_stage = function(req, res) {
   Stage.remove({_id: req.params.stageId}, function(err, stage) {
     if (err){
-      res.send(err);
+      res.status(500).send(err);
     }
     else{
       res.json({ message: 'Stage successfully deleted' });

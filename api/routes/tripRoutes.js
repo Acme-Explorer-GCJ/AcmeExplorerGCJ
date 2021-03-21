@@ -60,7 +60,8 @@ module.exports = function(app) {
    */
   app.route('/v1/stages')
   .get(trips.list_all_stages)
-  .post(trips.create_a_stage);
+  .post(trips.create_a_stage)
+  .delete(trips.delete_a_stage);
   
   /**
    * get results from a search of applications groupBy title
@@ -85,9 +86,10 @@ module.exports = function(app) {
    * @type get put delete
    * @url /v1/trips/:stageId
   */
+
    app.route('/v1/stages/:stageId')
-    .get(trips.read_a_stage)
-    .put(trips.update_a_stage)
-    .delete(trips.delete_a_stage);
+   .get(trips.read_a_stage)
+   .put(trips.update_a_stage)
+   .delete(trips.delete_a_stage);
 
 };

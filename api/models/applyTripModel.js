@@ -46,6 +46,9 @@ var ApplyTripSchema = new Schema({
   cancellationReason: {
     type: String
   },
+  acceptanceMoment: {
+    type: Date
+  },
   consumer: {
     type: Schema.Types.ObjectId,
     required: 'consumer id required'
