@@ -57,12 +57,14 @@ var routesActors    = require('./api/routes/actorRoutes');
 var routesTrip      = require('./api/routes/tripRoutes'); 
 var routesApplyTrip = require('./api/routes/applyTripRoutes');
 var routesStorage   = require('./api/routes/storageRoutes');
+var routesLogin   = require('./api/routes/loginRoutes');
 
 
 routesActors(app);
 routesTrip(app);
 routesApplyTrip(app);
 routesStorage(app);
+routesLogin(app);
 
 
 
