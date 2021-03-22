@@ -8,7 +8,13 @@ var express = require('express'),
   bodyParser = require('body-parser');
   admin = require('firebase-admin'),
   serviceAccount = require("./acme-explorer-96392-firebase-adminsdk-utn5s-1b91b25e0d");
+  https = require("https"),
+  fs = require("fs");
 
+  const keys = {
+    key: fs.readFileSync('./keys/server.key'),
+    cert: fs.readFileSync('./keys/server.cert')
+  };
 // MongoDB URI building
 
 var mongoDBUser = process.env.mongoDBUser || "yulipala";
@@ -70,11 +76,15 @@ routesLogin(app);
 
 console.log("Connecting DB to: " + mongoDBURI);
 mongoose.connection.on("open", function (err, conn) {
-    app.listen(port, function () {
+    /*app.listen(port, function () {
         console.log('ACME-Explorer RESTful API server started on: ' + port);
-    });
+    });*/
+    https.createServer(keys, app).listen(port);
+    console.log('ACME-Explorer RESTful API server started with HTTPS on: ' + port);
 });
 
 mongoose.connection.on("error", function (err, conn) {
     console.error("DB init error " + err);
 });
+
+module.exports = app;
