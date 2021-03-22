@@ -15,8 +15,8 @@ var express = require('express'),
     key: fs.readFileSync('./keys/server.key'),
     cert: fs.readFileSync('./keys/server.cert')
   };
+  
 // MongoDB URI building
-
 var mongoDBUser = process.env.mongoDBUser || "yulipala";
 var mongoDBPass = process.env.mongoDBPass || "jZAb9EXS0yCxX9Ks";
 var mongoDBCredentials = (mongoDBUser && mongoDBPass) ? mongoDBUser + ":" + mongoDBPass + "@" : "";

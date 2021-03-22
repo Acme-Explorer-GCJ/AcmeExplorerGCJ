@@ -40,14 +40,13 @@ var ApplyTripSchema = new Schema({
     required: 'Status required',
     enum: ['PENDING', 'REJECTED', 'DUE', 'ACCEPTED', 'CANCELLED']
   }],
-  cancellationMoment: {
-    type: Date
+  statusUpdateMoment: {
+    type: Date,
+    required: 'statusUpdateMoment required',
+    default: Date.now
   },
   cancellationReason: {
     type: String
-  },
-  acceptanceMoment: {
-    type: Date
   },
   consumer: {
     type: Schema.Types.ObjectId,
@@ -66,7 +65,7 @@ var ApplyTripSchema = new Schema({
 
 ApplyTripSchema.index({ consumer: 1});
 ApplyTripSchema.index({ explorer: 1 }); 
-ApplyTripSchema.index({ cancellationMoment: 1 });
+ApplyTripSchema.index({ statusUpdateMoment: 1 });
 
   // Execute before each item.save() call
   ApplyTripSchema.pre('save', function(callback) {

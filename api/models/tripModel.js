@@ -66,8 +66,10 @@ var TripSchema = new Schema({
   dateEnd: {
    type: Date,
  },
- cancellationMoment: {
+ statusUpdateMoment: {
   type: Date,
+  required: 'statusUpdateMoment required',
+  default: Date.now
 },
 cancellationReason: {
  type: String,
