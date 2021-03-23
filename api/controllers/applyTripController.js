@@ -52,19 +52,19 @@ exports.search_application = function(req, res) {
   query.manager = req.query.managerId;
 
   if (req.query.cancelled=="true") {
-    //retrieving applications with a cancellationMoment
-    query.cancellationMoment = { $exists: true }
+    //retrieving applications with a statusUpdateMoment
+    query.statusUpdateMoment = { $exists: true }
   }
   if (req.query.cancelled=="false") {
-    //retrieving applications without a cancellationMoment
-    query.cancellationMoment = { $exists: false };
+    //retrieving applications without a statusUpdateMoment
+    query.statusUpdateMoment = { $exists: false };
   }
   if (req.query.accepted=="true") {
-    //retrieving applications with a cancellationMoment
+    //retrieving applications with a statusUpdateMoment
     query.acceptanceMoment = { $exists: true }
   }
   if (req.query.accepted=="false") {
-    //retrieving applications without a cancellationMoment
+    //retrieving applications without a statusUpdateMoment
     query.acceptanceMoment = { $exists: false };
   }
 

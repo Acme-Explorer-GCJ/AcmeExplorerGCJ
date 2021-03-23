@@ -70,7 +70,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"ticker\": \"ticker2\",\n    \"title\": \"title2\",\n    \"description\": \"description2\",\n    \"price\": 12345678,\n    \"dateStart\": \"2020-01-01\",\n    \"dateEnd\": \"2021-01-01\",\n    \"cancellationMoment\": \"2020-01-01\",\n    \"cancellationReason\": \"2020-01-01\"\n}",
+					"raw": "{\n    \"ticker\": \"ticker2\",\n    \"title\": \"title2\",\n    \"description\": \"description2\",\n    \"price\": 12345678,\n    \"dateStart\": \"2020-01-01\",\n    \"dateEnd\": \"2021-01-01\",\n    \"statusUpdateMoment\": \"2020-01-01\",\n    \"cancellationReason\": \"2020-01-01\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

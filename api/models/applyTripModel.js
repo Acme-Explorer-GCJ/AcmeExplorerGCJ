@@ -46,9 +46,6 @@ var ApplyTripSchema = new Schema({
   cancellationReason: {
     type: String
   },
-  acceptanceMoment: {
-    type: Date
-  },
   consumer: {
     type: Schema.Types.ObjectId,
     required: 'consumer id required'
@@ -66,7 +63,7 @@ var ApplyTripSchema = new Schema({
 
 ApplyTripSchema.index({ consumer: 1});
 ApplyTripSchema.index({ explorer: 1 }); 
-ApplyTripSchema.index({ cancellationMoment: 1 });
+ApplyTripSchema.index({ statusUpdateMoment: 1 });
 
   // Execute before each item.save() call
   ApplyTripSchema.pre('save', function(callback) {
