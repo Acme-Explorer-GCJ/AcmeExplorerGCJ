@@ -18,15 +18,14 @@ var express = require('express'),
 // MongoDB URI building
 
 var mongoDBUser = process.env.mongoDBUser || "yulipala";
-var mongoDBPass = process.env.mongoDBPass || "jZAb9EXS0yCxX9Ks";
+var mongoDBPass = process.env.mongoDBPass || "RUTA69ruta";
 var mongoDBCredentials = (mongoDBUser && mongoDBPass) ? mongoDBUser + ":" + mongoDBPass + "@" : "";
 
 var mongoDBHostname = process.env.mongoDBHostname || "localhost";
 var mongoDBPort = process.env.mongoDBPort || "27017";
 var mongoDBName = process.env.mongoDBName || "ACME-Explorer";
 
-var mongoDBURI = "mongodb://" + mongoDBHostname + ":" + mongoDBPort + "/" + mongoDBName;
-
+mongoDBURI = "mongodb+srv://" + mongoDBUser + ":" + mongoDBPass + "@cluster0.ugodt.mongodb.net/acmeExplorer?retryWrites=true&w=majority";
 mongoose.connect(mongoDBURI, {
     // reconnectTries: 10,
     // reconnectInterval: 500,
