@@ -46,9 +46,9 @@ var ApplyTripSchema = new Schema({
   cancellationReason: {
     type: String
   },
-  consumer: {
+  explorer: {
     type: Schema.Types.ObjectId,
-    required: 'consumer id required'
+    required: 'explorer id required'
   },
   manager: {
     type: Schema.Types.ObjectId
@@ -71,7 +71,7 @@ ApplyTripSchema.index({ statusUpdateMoment: 1 });
   var date = new Date;
   var day=dateFormat(new Date(), "yymmdd");
 
-  var generator = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 6);
+  var generator = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4);
   var generatedTickerPart = generator();
   var generated_ticker = [day, generatedTickerPart].join('-');
   new_applyTrip.ticker = generated_ticker;

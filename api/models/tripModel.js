@@ -44,9 +44,9 @@ var TripSchema = new Schema({
    //This validation does not run after middleware pre-save
    validate: {
     validator: function(v) {
-        return /\d{6}-\w{6}/.test(v);
+        return /\d{6}-\w{4}/.test(v);
     },
-    message: 'ticker is not valid!, Pattern("\d(6)-\w(6)")'
+    message: 'ticker is not valid!, Pattern("\d(6)-\w(4)")'
   }
 },
   title: {
@@ -60,6 +60,11 @@ var TripSchema = new Schema({
     type: Number,
     min: 0
   },
+  status: [{
+    type: String,
+    required: 'Status required',
+    enum: ['CREATED', 'PUBLISHED', 'CANCELLED']
+  }],
    dateStart: {
     type: Date,
   },
@@ -82,7 +87,7 @@ TripSchema.pre('save', function(callback) {
   var date = new Date;
   var day=dateFormat(new Date(), "yymmdd");
 
-  var generator = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 6);
+  var generator = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4);
   var generatedTickerPart = generator();
   var generated_ticker = [day, generatedTickerPart].join('-');
   
