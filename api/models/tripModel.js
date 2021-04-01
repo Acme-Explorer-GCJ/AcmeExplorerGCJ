@@ -66,9 +66,11 @@ var TripSchema = new Schema({
     enum: ['CREATED', 'PUBLISHED', 'CANCELLED']
   }],
    dateStart: {
+    required: 'date start required',
     type: Date,
   },
   dateEnd: {
+    required: 'date end required',
    type: Date,
  },
  cancellationMoment: {
@@ -77,11 +79,12 @@ var TripSchema = new Schema({
 cancellationReason: {
  type: String,
 },
+stages: [StageSchema],
 requirements: [RequirementSchema],
 pictures: [PictureSchema]
 }, { strict: false });
 
-// Execute before each item.save() call
+// Execute before each trip.save() call
 TripSchema.pre('save', function(callback) {
   var new_trip = this;
   var date = new Date;
@@ -90,8 +93,14 @@ TripSchema.pre('save', function(callback) {
   var generator = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4);
   var generatedTickerPart = generator();
   var generated_ticker = [day, generatedTickerPart].join('-');
+
+  var price = 0
+  for (let stage of new_trip.stages) {
+    price = price + stage.price;
+  }
   
   new_trip.ticker = generated_ticker;
+  new_trip.price = price;
   callback();
 });
 TripSchema.index({ dateStart: 1, price: 1 }); //1 ascending,  -1 descending

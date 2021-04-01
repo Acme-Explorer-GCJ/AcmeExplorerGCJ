@@ -69,6 +69,16 @@ exports.read_a_trip = function(req, res) {
 
 
 exports.update_a_trip = function(req, res) {
+
+  // TODO: No permitir cancelar si tiene algún apply aceptado (falta relación de trip con apply) -- JULIA
+  // TODO: Actualizar el precio del trip con los stages -- JULIA
+  
+  // Validaciones para cancelar un viaje
+  if (req.body.status == 'CANCELLED' && (! req.body.cancellationReason || Date.parse(req.body.dateStart) >= Date.now())){
+    let err = {"name": 'ValidationError'}
+    res.status(422).send(err);
+  }
+  else{
     Trip.findOneAndUpdate({_id: req.params.tripId}, req.body, {new: true}, function(err, trip) {
       if (err){
         if(err.name=='ValidationError') {
@@ -82,7 +92,7 @@ exports.update_a_trip = function(req, res) {
         res.json(trip);
       }
     });
-};
+}};
 
 exports.delete_a_trip = function(req, res) {
     Trip.remove({_id: req.params.tripId}, function(err, trip) {
