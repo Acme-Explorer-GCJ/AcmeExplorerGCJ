@@ -5,6 +5,7 @@ var Schema = mongoose.Schema;
 var en = require("nanoid-good/locale/en"); // you should add locale of your preferred language
 var customAlphabet  = require("nanoid-good").customAlphabet(en);
 const dateFormat = require('dateformat');
+const { db } = require('./actorModel');
 
 var RequirementSchema = new Schema({
   name: {
@@ -14,6 +15,7 @@ var RequirementSchema = new Schema({
 }, { strict: false });
 
 var StageSchema = new Schema({
+
   title: {
     type: String,
     required: 'Stage name required'
@@ -81,8 +83,10 @@ cancellationReason: {
 },
 stages: [StageSchema],
 requirements: [RequirementSchema],
-pictures: [PictureSchema]
+pictures: [PictureSchema],
+applications: [{type: Schema.ObjectId, ref: 'ApplyTrips' }]
 }, { strict: false });
+
 
 // Execute before each trip.save() call
 TripSchema.pre('save', function(callback) {
@@ -98,7 +102,6 @@ TripSchema.pre('save', function(callback) {
   for (let stage of new_trip.stages) {
     price = price + stage.price;
   }
-  
   new_trip.ticker = generated_ticker;
   new_trip.price = price;
   callback();

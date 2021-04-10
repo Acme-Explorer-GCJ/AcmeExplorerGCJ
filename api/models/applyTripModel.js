@@ -2,34 +2,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var OrderedTripSchema = new Schema({
-  ticker: {
-   type: String,
-   validate: {
-    validator: function(v) {
-        return /^\w{6}$/.test(v);
-    },
-    message: 'ticker is not valid!, Pattern("^\w{6}$")'
-    }
-  },
-  name: {
-    type: String,
-    required: 'Trip name required'
-  },
-  quantity: {
-    type: Number,
-    min: 1
-  },
-  price: {
-    type: Number,
-    min: 0
-  },
-   served: {
-    type: Boolean,
-    default: false
-  }
-}, { strict: false });
-
 var ApplyTripSchema = new Schema({
   startMoment: {
     type: Date,
@@ -58,7 +30,7 @@ var ApplyTripSchema = new Schema({
     type: Number,
     min: 0
   },
-  trips: [OrderedTripSchema]
+  trip: { type: Schema.ObjectId, ref: 'Trips' }
 }, { strict: false });
 
 ApplyTripSchema.index({ consumer: 1});
