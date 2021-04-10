@@ -2,7 +2,8 @@
 
 /*---------------TRIP----------------------*/
 var mongoose = require('mongoose'),
-  Trip = mongoose.model('Trips');
+  Trip = mongoose.model('Trips'),
+  Actor = mongoose.model('Actors');
 
 exports.list_all_trips = function (req, res) {
   Trip.find(function (err, trips) {
@@ -19,19 +20,35 @@ exports.list_all_trips = function (req, res) {
 
 exports.create_a_trip = function (req, res) {
   var new_trip = new Trip(req.body);
-  new_trip.save(function (err, trip) {
-    if (err) {
-      console.log(Date() + " - " + err);
-      if (err.name == 'ValidationError') {
-        res.status(422).send(err);
+  var idToken = req.headers['idtoken'];
+
+  admin.auth().verifyIdToken(idToken).then(function (decodedToken) {
+
+    var uid = decodedToken.uid;
+
+    Actor.findOne({ email: uid }, function (err, actor) {
+      if (err) {
+        res.send(err);
+      } else {
+        console.log(actor._id)
+        new_trip.manager = actor;
+        console.log(new_trip);
+        new_trip.save(function (err, trip) {
+          if (err) {
+            console.log(Date() + " - " + err);
+            if (err.name == 'ValidationError') {
+              res.status(422).send(err);
+            }
+            else {
+              res.status(500).send(err);
+            }
+          }
+          else {
+            res.json(trip);
+          }
+        });
       }
-      else {
-        res.status(500).send(err);
-      }
-    }
-    else {
-      res.json(trip);
-    }
+    });
   });
 };
 
@@ -80,16 +97,24 @@ exports.read_a_trip = function (req, res) {
 
 exports.update_a_trip = function (req, res) {
 
-  // TODO: No permitir cancelar si tiene algún apply aceptado (falta relación de trip con apply) -- JULIA
-  // TODO: Actualizar el precio del trip con los stages -- JULIA 
-  //(ESTO SE VA A HACER SOLO NO?, ya que si actualizo el stage, lo tendré actualizado en el trip
-  // Validaciones para cancelar un viaje
-  if (req.body.status == 'CANCELLED' && (!req.body.cancellationReason || Date.parse(req.body.dateStart) >= Date.now())) {
+  for (application in req.body.applications) {
+    if (req.body.status == 'CANCELLED' && application.status.includes('ACCEPTED')) {
+      let err = { "name": 'ValidationError' }
+      res.status(422).send(err);
+    }
+  }
+  if (req.body.status == 'CANCELLED'
+    && (!req.body.cancellationReason
+      || Date.parse(req.body.dateStart) >= Date.now())) {
     let err = { "name": 'ValidationError' }
     res.status(422).send(err);
-  }
-  else {
+  } else {
     Trip.findOneAndUpdate({ _id: req.params.tripId }, req.body, { new: true }, function (err, trip) {
+      var price = 0;
+      for (let stage of trip.stages) {
+        price = price + stage.price;
+      }
+      trip.price = price;
       if (err) {
         if (err.name == 'ValidationError') {
           res.status(422).send(err);
@@ -99,6 +124,7 @@ exports.update_a_trip = function (req, res) {
         }
       }
       else {
+        console.log(trip)
         res.status(200).json(trip);
       }
     });
