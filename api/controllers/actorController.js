@@ -1,7 +1,14 @@
 'use strict';
 /*---------------ACTOR----------------------*/
 var mongoose = require('mongoose'),
-  Actor = mongoose.model('Actors');
+Actor = mongoose.model('Actors');
+
+var authController = require('../controllers/authController');
+
+const { auth } = require('firebase-admin');
+var admin = require('firebase-admin');
+
+
 
 exports.list_all_actors = function (req, res) {
   //Check if the role param exist
@@ -23,65 +30,65 @@ exports.list_all_actors = function (req, res) {
 exports.create_an_actor = function (req, res) {
   var new_actor = new Actor(req.body);
 
-  Actor.findById(req.params.actorId, function (err, actor) {
-    if (err) {
-      res.send(err);
+  const headerToken = req.headers.idtoken;
+  console.log('starting verifying idToken');
+  var idToken = req.headers['idtoken'];
+  console.log('idToken: '+idToken);
+
+  if(!headerToken){
+    if ((new_actor.role.includes('EXPLORER'))) {
+      new_actor.validated = false;
+      new_actor.save(function (err, actor) {
+        if (err) {
+          res.send(err);
+        }
+        else {
+          res.status(200);
+          res.json(actor);
+        }
+      });
     }
     else {
-      console.log('actor: ' + actor);
+      res.status(403); //Auth error
+      res.send('The Actor is trying to create an Actor that is not himself!');
+    }
+  } else {
+    admin.auth().verifyIdToken(idToken).then(function(decodedToken) {
+      console.log('entra en el then de verifyIdToken: ');
 
-      if (actor) {
-        switch (actor.role) {
-          case 'EXPLORER':
-          case 'MANAGER':
+      var uid = decodedToken.uid;
+
+      Actor.findOne({ email: uid }, function (err, actor) {
+        if (err) {
+          res.send(err); 
+        }else{
+          console.log(actor.role)
+          if (actor.role.includes('EXPLORER') || actor.role.includes('MANAGER')){
+
             res.status(403); //Auth error
             res.send('The Actor is trying to create an Actor that is not himself!');
-            break;
-          case 'ADMINISTRATOR':
-            // If new_actor is a manager, validated = true;
-            // If new_actor is a explorer, validated = false;
-            switch (new_actor.role) {
-              case 'EXPLORER':
-                new_actor.validated = false;
-                res.status(403);
-                res.send('The Actor Explorer cannot be created by an administrator!');
-                break;
-              case 'MANAGER':
+          } else if (actor.role.includes('ADMINISTRATOR')){
+              // If new_actor is a manager, validated = true;
+              // If new_actor is a explorer, validated = false;
+              if ((new_actor.role.includes( 'MANAGER' ))) {
                 new_actor.validated = true;
-                new_actor.save(function (err, actor) {
-                  if (err) {
+                new_actor.save(function(err, actor) {
+                  if (err){
                     res.send(err);
                   }
-                  else {
-                    res.status(200);
+                  else{
                     res.json(actor);
                   }
                 });
-                break;
-            }
-            break;
-        }
-      }
-      else {
-        if ((new_actor.role.includes('EXPLORER'))) {
-          new_actor.validated = false;
-          new_actor.save(function (err, actor) {
-            if (err) {
-              res.send(err);
-            }
-            else {
-              res.status(200);
-              res.json(actor);
-            }
-          });
-        }
-        else {
-          res.status(403); //Auth error
-          res.send('The Actor is trying to create an Actor that is not himself!');
-        }
-      }
+              } else if ((new_actor.role.includes( 'EXPLORER' ))){
+                res.status(403);
+                res.send('An Administrator cannot create an Explorer')
+              } 
+          }
     }
   });
+});
+}
 };
 
 exports.read_an_actor = function (req, res) {
@@ -99,6 +106,7 @@ exports.login_an_actor = async function (req, res) {
   console.log('starting login an actor');
   var emailParam = req.query.email;
   var password = req.query.password;
+  console.log(emailParam + "/" + password);
   Actor.findOne({ email: emailParam }, function (err, actor) {
     if (err) { res.send(err); }
 
