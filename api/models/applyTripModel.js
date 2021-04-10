@@ -24,9 +24,6 @@ var ApplyTripSchema = new Schema({
     type: Schema.Types.ObjectId,
     required: 'explorer id required'
   },
-  manager: {
-    type: Schema.Types.ObjectId
-  },
   comments: [String],
   total:{
     type: Number,
@@ -48,14 +45,6 @@ ApplyTripSchema.index({ status: 1});
 
   // Execute before each item.save() call
   ApplyTripSchema.pre('save', function(callback) {
-  var new_applyTrip = this;
-  var date = new Date;
-  var day=dateFormat(new Date(), "yymmdd");
-
-  var generator = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4);
-  var generatedTickerPart = generator();
-  var generated_ticker = [day, generatedTickerPart].join('-');
-  new_applyTrip.ticker = generated_ticker;
   callback();
 });
 

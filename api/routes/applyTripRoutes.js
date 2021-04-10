@@ -1,6 +1,7 @@
 'use strict';
 module.exports = function(app) {
-  var applications = require('../controllers/applyTripController');
+  var applications = require('../controllers/applyTripController'),
+  authController = require('../controllers/authController');
   
   /**
    * Manage catalogue of applications: 
@@ -15,7 +16,7 @@ module.exports = function(app) {
   */
   app.route('/v1/applications')
 	  .get(applications.list_all_applications)
-	  .post(applications.create_application);
+	  .post(authController.verifyUser(['EXPLORER']),applications.create_application);
     
   /**
    * get results from a search of applications groupBy title
@@ -42,7 +43,7 @@ module.exports = function(app) {
   */
    app.route('/v1/applications/:applicationId')
     .get(applications.read_application) 
-    .put(applications.update_application) 
+    .put(authController.verifyUser(['EXPLORER']),applications.update_application) 
     .delete(applications.delete_application);
 
   app.route('/v1/myapplications')

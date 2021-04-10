@@ -87,11 +87,12 @@ exports.read_a_trip = function (req, res) {
 
 
 exports.update_a_trip = function (req, res) {
-
-  for (application in req.body.applications) {
-    if (req.body.status == 'CANCELLED' && application.status.includes('ACCEPTED')) {
-      let err = { "name": 'ValidationError' }
-      res.status(422).send(err);
+  if (req.body.applications) {
+    for (let application of req.body.applications) {
+      if (req.body.status == 'CANCELLED' && application.status.includes('ACCEPTED')) {
+        let err = { "name": 'ValidationError' }
+        res.status(422).send(err);
+      }
     }
   }
   if (req.body.status == 'CANCELLED'
@@ -102,10 +103,13 @@ exports.update_a_trip = function (req, res) {
   } else {
     Trip.findOneAndUpdate({ _id: req.params.tripId }, req.body, { new: true }, function (err, trip) {
       var price = 0;
-      for (let stage of trip.stages) {
-        price = price + stage.price;
+      console.log(req.params.tripId+ "/"+trip)
+      if (trip.stages) {
+        for (let stage of trip.stages) {
+          price = price + stage.price;
+        }
+        trip.price = price;
       }
-      trip.price = price;
       if (err) {
         if (err.name == 'ValidationError') {
           res.status(422).send(err);
