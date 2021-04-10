@@ -5,6 +5,7 @@ var express = require('express'),
   Actor = require('./api/models/actorModel'),
   Trip = require('./api/models/tripModel'),
   ApplyTrip = require('./api/models/applyTripModel'),
+  Dashboard = require('./api/models/dashboardModel'),
   bodyParser = require('body-parser');
   admin = require('firebase-admin'),
   serviceAccount = require("./acme-explorer-96392-firebase-adminsdk-utn5s-1b91b25e0d");
@@ -63,6 +64,8 @@ var routesTrip      = require('./api/routes/tripRoutes');
 var routesApplyTrip = require('./api/routes/applyTripRoutes');
 var routesStorage   = require('./api/routes/storageRoutes');
 var routesLogin   = require('./api/routes/loginRoutes');
+var routesdashboard = require('./api/routes/dashboardRoutes'); 
+
 
 
 routesActors(app);
@@ -70,6 +73,7 @@ routesTrip(app);
 routesApplyTrip(app);
 routesStorage(app);
 routesLogin(app);
+routesdashboard(app);
 
 
 
