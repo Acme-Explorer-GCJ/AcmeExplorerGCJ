@@ -68,11 +68,15 @@ var TripSchema = new Schema({
     enum: ['CREATED', 'PUBLISHED', 'CANCELLED']
   }],
    dateStart: {
-    required: 'date start required',
+    required: 'start date required',
     type: Date,
+    validate: function(dateStart) {
+      return dateStart < this.dateEnd;
+  },
+  message: 'startDate can\'t be greater than endDate'
   },
   dateEnd: {
-    required: 'date end required',
+    required: 'end date required',
    type: Date,
  },
  cancellationMoment: {
@@ -80,6 +84,10 @@ var TripSchema = new Schema({
 },
 cancellationReason: {
  type: String,
+},
+manager:{
+  type: Schema.Types.ObjectId,
+  required: 'Kindle enter a manager of the trip'
 },
 stages: [StageSchema],
 requirements: [RequirementSchema],

@@ -181,4 +181,59 @@ function computeRatioApplications(callback){
   ], function(err,res){
     callback(err,res);
   })
+
+  var CronJob = require('cron').CronJob;
+var CronTime = require('cron').CronTime;
+
+//'0 0 * * * *' una hora
+//'*/30 * * * * *' cada 30 segundos
+//'*/10 * * * * *' cada 10 segundos
+var rebuildPeriod = '*/10 * * * * *';  //El que se usará por defecto
+var computeDashboardJob;
+
+exports.rebuildPeriod = function(req, res) {
+  //console.log('Updating rebuild period. Request: period:'+req.query.rebuildPeriod);
+  rebuildPeriod = req.query.rebuildPeriod;
+  computeDashboardJob.setTime(new CronTime(rebuildPeriod));
+  computeDashboardJob.start();
+
+  res.json(req.query.rebuildPeriod);
+};
+
+function createDashboardJob(){
+      computeDashboardJob = new CronJob(rebuildPeriod,  function() {
+      
+      var new_dashboard = new Dashboard();
+      //console.log('Cron job submitted. Rebuild period: '+rebuildPeriod);
+      async.parallel([
+        computeTripsPerManager,
+        computeApplicationsPerTrip,
+        computePriceTrip,
+        computeRatioApplications
+      ], function (err, results) {
+        if (err){
+          console.log("Error computing dashboard: "+err);
+        }
+        else{
+          //console.log("Resultados obtenidos por las agregaciones: "+JSON.stringify(results));
+          new_dashboard.TripsPerManager = results[0];
+          new_dashboard.ApplicationsPerTrip = results[1];
+          new_dashboard.PriceTrip = results[2];
+          new_dashboard.ratioApplications = results[3];
+          new_dashboard.rebuildPeriod = rebuildPeriod;
+    
+          new_dashboard.save(function(err, datawarehouse) {
+            if (err){
+              console.log("Error saving dashboard: "+err);
+            }
+            else{
+              console.log("new dashboard succesfully saved. Date: "+new Date());
+            }
+          });
+        }
+      });
+    }, null, true, 'Europe/Madrid');
+  }
+  createDashboardJob();
+module.exports.createDashboardJob = createDashboardJob;
 }
