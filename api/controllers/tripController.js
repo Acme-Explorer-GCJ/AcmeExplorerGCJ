@@ -59,27 +59,18 @@ exports.search_trip = function (req, res) {
   var title = req.query.title;
   var ticker = req.query.ticker;
   var description = req.query.description;
-  if (!title) {
-    logger.warn("New trip GET request without title, sending 400...");
-    res.sendStatus(400); // bad request
-  } else {
-    Trip.find({
-      $text: {
-        $search: title,
-        $search: ticker,
-        $search: description
-      }
-    }
+    Trip.find( { $or:[ {'title': title}, {'ticker': ticker}, {'description': description} ]}
       //title:req.query.title
       , function (err, trips) {
         if (err) {
+          console.log(trips)
+          console.log(title);
           res.send(err);
         }
         else {
           res.json(trips);
         }
       }).limit(10);
-  };
 };
 
 
