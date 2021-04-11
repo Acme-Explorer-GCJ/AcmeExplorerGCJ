@@ -1,7 +1,7 @@
 var async = require("async");
 var mongoose = require('mongoose'),
   Trip = mongoose.model('Trips'),
-  Application = mongoose.model('ApplyTrips')
+  Application = mongoose.model('ApplyTrips'),
   Dashboard = mongoose.model('Dashboard');
 
 exports.list_all_indicators = function(req, res) {
@@ -185,7 +185,7 @@ function computeRatioApplications(callback){
     callback(err,res);
   })
 }
-  var CronJob = require('cron').CronJob;
+var CronJob = require('cron').CronJob;
 var CronTime = require('cron').CronTime;
 
 //'0 0 * * * *' una hora
@@ -207,7 +207,6 @@ function createDashboardJob(){
       computeDashboardJob = new CronJob(rebuildPeriod,  function() {
       
       var new_dashboard = new Dashboard();
-      //console.log('Cron job submitted. Rebuild period: '+rebuildPeriod);
       async.parallel([
         computeTripsPerManager,
         computeApplicationsPerTrip,
@@ -218,7 +217,6 @@ function createDashboardJob(){
           console.log("Error computing dashboard: "+err);
         }
         else{
-          //console.log("Resultados obtenidos por las agregaciones: "+JSON.stringify(results));
           new_dashboard.TripsPerManager = results[0];
           new_dashboard.ApplicationsPerTrip = results[1];
           new_dashboard.PriceTrip = results[2];
@@ -237,4 +235,48 @@ function createDashboardJob(){
       });
     }, null, true, 'Europe/Madrid');
   }
+exports.averagePriceFinders = async (req, res) => {
+  try {
+      const docs = await Finderschema.aggregate([
+          {$project:{
+            _id: 0,
+            minimun: {$arrayElemAt: ["$priceRange", 0 ]},
+            maximun: {$arrayElemAt: ["$priceRange", 1 ]}
+          }},
+          {$group:{
+            _id: 0,
+            avg_min: {$avg: "$minimun"},
+            avg_max: {$avg: "$maximun"}
+          }},  
+      ]).exec();
+
+      if (docs.length > 0) {
+          return res.status(200).json(docs);
+      } else {
+          return res.sendStatus(404);
+      }
+
+  } catch (err) {
+      res.status(500).json({ reason: "Database error" });
+  }
+};
+
+
+//Get the top 10 key words that the explorers indicate in their finders.
+exports.topTenKeywordsFinders = async (req, res) => {
+  try {
+      const docs = await FinderSchema.aggregate([
+          
+      ]).exec();
+
+      if (docs.length > 0) {
+          return res.status(200).json(docs);
+      } else {
+          return res.sendStatus(404);
+      }
+
+  } catch (err) {
+      res.status(500).json({ reason: "Database error" });
+  }
+};
 module.exports.createDashboardJob = createDashboardJob;

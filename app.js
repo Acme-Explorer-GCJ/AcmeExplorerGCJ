@@ -6,7 +6,8 @@ var express = require('express'),
   Trip = require('./api/models/tripModel'),
   ApplyTrip = require('./api/models/applyTripModel'),
   Dashboard = require('./api/models/dashboardModel'),
-  DashboardController = require('./api/controllers/dashboardController')
+  Finder = require('./api/models/finderModel'),
+  DashboardController = require('./api/controllers/dashboardController');
   bodyParser = require('body-parser');
   admin = require('firebase-admin'),
   serviceAccount = require("./acme-explorer-96392-firebase-adminsdk-utn5s-1b91b25e0d");
@@ -65,7 +66,8 @@ var routesTrip      = require('./api/routes/tripRoutes');
 var routesApplyTrip = require('./api/routes/applyTripRoutes');
 var routesStorage   = require('./api/routes/storageRoutes');
 var routesLogin   = require('./api/routes/loginRoutes');
-var routesdashboard = require('./api/routes/dashboardRoutes'); 
+var routesDashboard = require('./api/routes/dashboardRoutes'); 
+var routesFinder = require('./api/routes/finderRoutes');
 
 
 
@@ -74,7 +76,8 @@ routesTrip(app);
 routesApplyTrip(app);
 routesStorage(app);
 routesLogin(app);
-routesdashboard(app);
+routesDashboard(app);
+routesFinder(app);
 
 
 
