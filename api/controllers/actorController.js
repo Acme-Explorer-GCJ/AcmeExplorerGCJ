@@ -176,7 +176,10 @@ exports.update_an_actor = async function (req, res) {
   }, function (err, actor) {
     console.log(req.params.actorId)
     console.log(authenticatedUserId + "//" + actor._id)
-    if (String(authenticatedUserId) === String(actor._id)) {
+    Actor.findById(authenticatedUserId, function (err, actor_logged) {
+      console.log(actor_logged)
+      console.log(actor_logged.role)
+    if (String(authenticatedUserId) === String(actor._id) || actor_logged.role.includes('ADMINISTRATOR')) {
       if (err) {
         res.send(err);
       } else {
@@ -189,6 +192,7 @@ exports.update_an_actor = async function (req, res) {
         error: err
       });
     }
+  });
   });
 };
 
