@@ -1,5 +1,8 @@
 'use strict';
 
+const { list_all_trips } = require('./tripController');
+var authController = require('../controllers/authController');
+const { set } = require('../../app');
 
 var mongoose = require('mongoose'),
   ApplyTrip = mongoose.model('ApplyTrips'),
@@ -17,17 +20,40 @@ exports.list_all_applications = function (req, res) {
   });
 };
 
-exports.list_my_applications = function (req, res) {
-  ApplyTrip.find(function (err, applications) {
+exports.list_my_applications = async function (req, res) {
+  var listAppl = [];
+  var idToken = req.headers['idtoken'];
+  var authenticatedUserId = await authController.getUserId(idToken);
+  await Trip.find({ manager: authenticatedUserId }, async function (err, trips) {
+     for (let trip of trips) {
+      if (trip.applications !== []) {
+        await ApplyTrip.findOne({ trip: trip._id }, function (err, appl) {
+          if (err) {
+            console.log(Date() + " - " + err);
+            res.status(500).send(err);
+          }
+          else {
+            if(appl){
+              console.log("1")
+             listAppl.push(appl);
+            }
+          }
+        });
+      } else {
+        console.log("2")
+        res.json(listAppl);
+      }
+    }
     if (err) {
+      console.log(Date() + " - " + err);
       res.status(500).send(err);
     }
     else {
-      res.json(applications);
+      console.log("3")
+      await res.json(listAppl);
     }
   });
 };
-
 
 exports.create_application = function (req, res) {
   var new_appl = new ApplyTrip(req.body);
@@ -66,6 +92,8 @@ exports.create_application = function (req, res) {
                     res.json(appl);
                   }
                 });
+              }else{
+                res.status(403).send('The trip is not published! You cannot create an application.');
               }
             }
           });
