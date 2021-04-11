@@ -1,4 +1,7 @@
+var async = require("async");
 var mongoose = require('mongoose'),
+  Trip = mongoose.model('Trips'),
+  Application = mongoose.model('ApplyTrips')
   Dashboard = mongoose.model('Dashboard');
 
 exports.list_all_indicators = function(req, res) {
@@ -28,7 +31,7 @@ exports.last_indicator = function(req, res) {
 
 //The average, the minimum, the maximum, and the standard deviation of the number of trips managed per manager
 function computeTripsPerManager(callback){
-  Trips.aggregate([
+  Trip.aggregate([
     {$group: {_id:"$manager", TripsPerManager:{$sum:1}}},
     {$group: { _id:0,
         average: {$avg:"$TripsPerManager"},
@@ -43,7 +46,7 @@ function computeTripsPerManager(callback){
 
 //The average, the minimum, the maximum, and the standard deviation of the number of applications per trip.
 function computeApplicationsPerTrip(callback){
-  Applications.aggregate([
+  Application.aggregate([
     { 
         $group : { 
             _id : "$manager", 
@@ -76,7 +79,7 @@ function computeApplicationsPerTrip(callback){
 
 //The average, the minimum, the maximum, and the standard deviation of the price of the trips.
 function computePriceTrip(callback){
-  Trips.aggregate([
+  Trip.aggregate([
     { 
         "$group" : { 
             "_id" : { 
@@ -116,7 +119,7 @@ function computePriceTrip(callback){
 
 //The ratio of applications grouped by status.
 function computeRatioApplications(callback){
-  Applications.aggregate([
+  Application.aggregate([
     {$facet:{
           totalByStatusPending: [
             {$match : {"status" : "PENDING"}}, // 'PENDING','REJECTED','DUE','ACCEPTED','CANCELLED'
@@ -181,7 +184,7 @@ function computeRatioApplications(callback){
   ], function(err,res){
     callback(err,res);
   })
-
+}
   var CronJob = require('cron').CronJob;
 var CronTime = require('cron').CronTime;
 
@@ -234,6 +237,4 @@ function createDashboardJob(){
       });
     }, null, true, 'Europe/Madrid');
   }
-  createDashboardJob();
 module.exports.createDashboardJob = createDashboardJob;
-}

@@ -6,6 +6,7 @@ var express = require('express'),
   Trip = require('./api/models/tripModel'),
   ApplyTrip = require('./api/models/applyTripModel'),
   Dashboard = require('./api/models/dashboardModel'),
+  DashboardController = require('./api/controllers/dashboardController')
   bodyParser = require('body-parser');
   admin = require('firebase-admin'),
   serviceAccount = require("./acme-explorer-96392-firebase-adminsdk-utn5s-1b91b25e0d");
@@ -89,5 +90,8 @@ mongoose.connection.on("open", function (err, conn) {
 mongoose.connection.on("error", function (err, conn) {
     console.error("DB init error " + err);
 });
+
+// Función para que se generen los datos del dashboard
+//DashboardController.createDashboardJob();
 
 module.exports = app;
