@@ -128,14 +128,21 @@ exports.update_a_trip = function (req, res) {
 };
 
 exports.delete_a_trip = function (req, res) {
-  Trip.remove({ _id: req.params.tripId }, function (err, trip) {
-    if (err) {
-      res.status(500).send(err);
+  Trip.findById(req.params.tripId, function (err, trip) {
+    if (trip.status == 'PUBLISHED') {
+      res.status(403).send('Trips published cannot be deleted');
+    } else {
+      Trip.remove({ _id: req.params.tripId }, function (err, trip) {
+        console.log(req.params.status + "/" + trip.status)
+        if (err) {
+          res.status(500).send(err);
+        }
+        else {
+          res.json({ message: 'Trip successfully deleted' });
+        }
+      });
     }
-    else {
-      res.json({ message: 'Trip successfully deleted' });
-    }
-  });
+  }); 
 };
 
 
