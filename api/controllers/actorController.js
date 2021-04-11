@@ -151,13 +151,21 @@ exports.login_an_actor = async function (req, res) {
 };
 
 exports.update_an_actor = function (req, res) {
+  var idToken = req.headers['idtoken'];
+  var authenticatedUserId = await authController.getUserId(idToken);
+  
   //Check that the user is the proper actor and if not: res.status(403); "an access token is valid, but requires more privileges"
   Actor.findOneAndUpdate({ _id: req.params.actorId }, req.body, { new: true }, function (err, actor) {
-    if (err) {
-      res.send(err);
-    }
-    else {
-      res.json(actor);
+    if (String(authenticatedUserId) === String(actor)) {
+      if (err) {
+        res.send(err);
+      }
+      else {
+        res.json(actor);
+      }
+    }else{
+      res.status(403); //an access token is valid, but requires more privileges
+      res.json({ message: 'You only can modify your personal data', error: err });
     }
   });
 };

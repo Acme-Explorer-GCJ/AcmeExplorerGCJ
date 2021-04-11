@@ -53,18 +53,14 @@ exports.create_a_trip = function (req, res) {
 };
 
 exports.search_trip = function (req, res) {
-  //Check if title param exists (title: req.query.title)
-  //Search depending on params but only if deleted = false
   console.log('Searching a trip depending on params');
   var title = req.query.title;
   var ticker = req.query.ticker;
   var description = req.query.description;
-    Trip.find( { $or:[ {'title': title}, {'ticker': ticker}, {'description': description} ]}
+    Trip.find( { $or:[ {'title': {'$regex': '.*' + title + '.*'}}, {'ticker':  {'$regex': '.*' + ticker + '.*'}}, {'description':  {'$regex': '.*' + description + '.*'}} ]}
       //title:req.query.title
       , function (err, trips) {
         if (err) {
-          console.log(trips)
-          console.log(title);
           res.send(err);
         }
         else {
