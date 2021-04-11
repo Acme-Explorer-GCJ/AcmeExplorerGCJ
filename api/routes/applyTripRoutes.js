@@ -43,7 +43,7 @@ module.exports = function(app) {
   */
    app.route('/v1/applications/:applicationId')
     .get(applications.read_application) 
-    .put(authController.verifyUser(['EXPLORER']),applications.update_application) 
+    .put(authController.verifyUser(['EXPLORER','MANAGER']),applications.update_application) 
     .delete(applications.delete_application);
 
   app.route('/v1/myapplications')

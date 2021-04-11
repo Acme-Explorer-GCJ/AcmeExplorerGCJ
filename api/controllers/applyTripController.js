@@ -25,7 +25,7 @@ exports.list_my_applications = async function (req, res) {
   var idToken = req.headers['idtoken'];
   var authenticatedUserId = await authController.getUserId(idToken);
   await Trip.find({ manager: authenticatedUserId }, async function (err, trips) {
-     for (let trip of trips) {
+    for (let trip of trips) {
       if (trip.applications !== []) {
         await ApplyTrip.findOne({ trip: trip._id }, function (err, appl) {
           if (err) {
@@ -33,9 +33,9 @@ exports.list_my_applications = async function (req, res) {
             res.status(500).send(err);
           }
           else {
-            if(appl){
+            if (appl) {
               console.log("1")
-             listAppl.push(appl);
+              listAppl.push(appl);
             }
           }
         });
@@ -92,7 +92,7 @@ exports.create_application = function (req, res) {
                     res.json(appl);
                   }
                 });
-              }else{
+              } else {
                 res.status(403).send('The trip is not published! You cannot create an application.');
               }
             }
@@ -174,21 +174,18 @@ exports.read_application = function (req, res) {
 };
 
 
-exports.update_application = function (req, res) {
-  //Check if the application has been previously assigned or not
-  //Assign the application to the proper manager that is requesting the assigment
-  //when updating delivery moment it must be checked the manager assignment and to check if it is the proper manager and if not: res.status(403); "an access token is valid, but requires more privileges"
+exports.update_application = async function (req, res) {
+
   var idToken = req.headers['idtoken'];
+  var authenticatedUserId = await authController.getUserId(idToken);
+  var new_appl = new ApplyTrip (req.body);
 
-  admin.auth().verifyIdToken(idToken).then(function (decodedToken) {
-
-    var uid = decodedToken.uid;
-
-    Actor.findOne({ email: uid }, function (err, actor) {
+  console.log(authenticatedUserId)
+  Actor.findOne({ _id: authenticatedUserId }, function (err, actor) {
+    if (actor.role.includes('EXPLORER')) {
       if (err) {
         res.send(err);
       } else {
-
         ApplyTrip.findById(req.params.applicationId, function (err, application) {
           if (err) {
             if (err.name == 'ValidationError') {
@@ -215,7 +212,57 @@ exports.update_application = function (req, res) {
           }
         });
       }
+    } else if (actor.role.includes('MANAGER')) {
+      ApplyTrip.findOne({ _id: req.params.applicationId }, function (err, application) {
+        if (err) {
+          res.status(500).send(err);
+        }
+        else {
+          Trip.findById(application.trip, function(err, trip){
+            if (err) {
+              res.status(500).send(err);
+            }
+            else {
+          if (String(trip.manager._id) == String(actor.id)) {
+            if (application.status == 'PENDING'
+              && (new_appl.startMoment !== ''
+                || new_appl.cancellationMoment !== ''
+                || new_appl.cancellationReason !== ''
+                || new_appl.explorer !== ''
+                || new_appl.comments !== []
+                || new_appl.total !== ''
+                || new_appl.trip !== '')) {
+              if (new_appl.status == 'REJECTED' || new_appl.status == 'DUE') {
+                console.log("1" + new_appl.status)
+                application.status = new_appl.status;
+                application.save(function (err, appl) {
+                  if (err) {
+                    res.status(500).send(err);
+                  }
+                  else {
+                    res.status(200);
+                    res.json(appl);
+                  }
+                }
+                );
+
+              } else {
+                res.status(403).send('You only can edit the status of pending applications to rejected or due!')
+              }
+            } else {
+              res.status(403).send('You only can edit the status of pending applications!')
+            }
+          } else {
+            res.status(403).send('You cannot edit this application, you are not the manager of the trip!')
+          }
+        }
+      });
+      } 
     });
+    } else {
+      res.status(403);
+      res.json("You cannot edit others applications!")
+    }
   });
 };
 

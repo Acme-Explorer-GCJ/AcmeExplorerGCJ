@@ -12,7 +12,7 @@ var ApplyTripSchema = new Schema({
     type: String,
     required: 'Status required',
     enum: ['PENDING', 'REJECTED', 'DUE', 'ACCEPTED', 'CANCELLED'],
-    default: 'PENDING'
+    default:'PENDING'
   }],
   cancellationMoment: {
     type: Date
@@ -28,10 +28,6 @@ var ApplyTripSchema = new Schema({
   total:{
     type: Number,
     min: 0
-  },
-  explorer: {
-    type: Schema.Types.ObjectId,
-    required: 'explorer id required'
   },
   trip: {
     type: Schema.Types.ObjectId,

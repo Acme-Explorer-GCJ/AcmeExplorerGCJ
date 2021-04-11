@@ -65,7 +65,8 @@ var TripSchema = new Schema({
   status: [{
     type: String,
     required: 'Status required',
-    enum: ['CREATED', 'PUBLISHED', 'CANCELLED']
+    enum: ['CREATED', 'PUBLISHED', 'CANCELLED'],
+    default: 'CREATED'
   }],
    dateStart: {
     required: 'start date required',
