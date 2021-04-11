@@ -55,15 +55,12 @@ exports.list_my_applications = async function (req, res) {
   });
 };
 
-exports.create_application = function (req, res) {
+exports.create_application = async function (req, res) {
   var new_appl = new ApplyTrip(req.body);
   var idToken = req.headers['idtoken'];
+  var authenticatedUserId = await authController.getUserId(idToken);
 
-  admin.auth().verifyIdToken(idToken).then(function (decodedToken) {
-
-    var uid = decodedToken.uid;
-
-    Actor.findOne({ email: uid }, function (err, actor) {
+    Actor.findOne({ _id: authenticatedUserId }, function (err, actor) {
       if (err) {
         res.send(err);
       } else {
@@ -75,7 +72,24 @@ exports.create_application = function (req, res) {
               res.json("Application cannot be created. Trip does not exist!");
 
             } else {
+              console.log(trip)
               if (trip.status.includes('PUBLISHED')) {
+                if (!trip.applications){
+                  trip.applications = []
+                }
+                trip.applications.push(new_appl)
+                trip.save(function (err, updated_trip) {
+                  if (err) {
+                    console.log(updated_trip)
+                    console.log(Date() + " - " + err);
+                    if (err.name == 'ValidationError') {
+                      res.status(422).send(err);
+                    }
+                    else {
+                      res.status(500).send(err);
+                    }
+                  }
+                });
                 new_appl.explorer = actor;
                 new_appl.save(function (err, appl) {
                   if (err) {
@@ -99,7 +113,6 @@ exports.create_application = function (req, res) {
           });
         }
       }
-    });
   });
 };
 

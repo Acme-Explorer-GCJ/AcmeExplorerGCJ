@@ -3,6 +3,7 @@
 /*---------------TRIP----------------------*/
 var mongoose = require('mongoose'),
   Trip = mongoose.model('Trips'),
+  ApplyTrip = mongoose.model('ApplyTrips'),
   Actor = mongoose.model('Actors');
 
   var authController = require('../controllers/authController');
@@ -99,20 +100,22 @@ exports.read_a_trip = function (req, res) {
 
 
 exports.update_a_trip = function (req, res) {
-  if (req.body.applications) {
-    for (let application of req.body.applications) {
-      if (req.body.status == 'CANCELLED' && application.status.includes('ACCEPTED')) {
-        res.status(422).send('You cannot cancel the trip because the trip has accepted applications!');
-      }
-    }
-  }
+
   if (req.body.status == 'CANCELLED'
     && (!req.body.cancellationReason
       || Date.parse(req.body.dateStart) >= Date.now())) {
-    res.status(422).send('You need to include a cancelation reason!');
+    res.status(422).send('You need to include a cancelation reason and date start cannot be in future!');
   } else {
-    Trip.findOne({ _id: req.params.tripId }, req.body, { new: true }, function (err, trip) {
-      console.log(trip.status)
+    Trip.findById(req.params.tripId, function (err, trip) {
+      if (trip.applications) {
+        for (let application of trip.applications) {
+          ApplyTrip.findById(application, function(err, appl) {
+          if (req.body.status == 'CANCELLED' && appl.status.includes('ACCEPTED')) {
+            res.status(422).send('You cannot cancel the trip because the trip has accepted applications!');
+          }
+        });
+      }
+      }else{
       if (trip.status !== 'PUBLISHED') {
         trip.save(function (err, trip) {
           var price = 0;
@@ -139,6 +142,7 @@ exports.update_a_trip = function (req, res) {
       } else {
         res.status(403).send("You cannot modify this trip as long as is PUBLISHED!");
       }
+    }
     });
   }
 };
