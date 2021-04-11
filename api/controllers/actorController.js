@@ -150,13 +150,15 @@ exports.login_an_actor = async function (req, res) {
   });
 };
 
-exports.update_an_actor = function (req, res) {
+exports.update_an_actor = async function (req, res) {
   var idToken = req.headers['idtoken'];
   var authenticatedUserId = await authController.getUserId(idToken);
   
   //Check that the user is the proper actor and if not: res.status(403); "an access token is valid, but requires more privileges"
   Actor.findOneAndUpdate({ _id: req.params.actorId }, req.body, { new: true }, function (err, actor) {
-    if (String(authenticatedUserId) === String(actor)) {
+    console.log(req.params.actorId)
+    console.log(authenticatedUserId+"//"+actor._id)
+    if (String(authenticatedUserId) === String(actor._id)) {
       if (err) {
         res.send(err);
       }
@@ -183,19 +185,22 @@ exports.validate_an_actor = function (req, res) {
   });
 };
 
-exports.update_a_verified_actor = function (req, res) {
+exports.update_a_verified_actor =  async function (req, res) {
   //Explorer and Managers can update theirselves, administrators can update any actor
   console.log('Starting to update the actor...');
+  var idToken = req.headers['idtoken'];//WE NEED the FireBase custom token in the req.header['idToken']... it is created by FireBase!!
+  var authenticatedUserId = await authController.getUserId(idToken);
+
+  Actor.findById(authenticatedUserId, async function(err, actorAuth) {
   Actor.findById(req.params.actorId, async function (err, actor) {
     if (err) {
       res.send(err);
     }
     else {
       console.log('actor: ' + actor);
-      var idToken = req.headers['idtoken'];//WE NEED the FireBase custom token in the req.header['idToken']... it is created by FireBase!!
-      if (actor.role.includes('EXPLORER') || actor.role.includes('MANAGER')) {
-        var authenticatedUserId = await authController.getUserId(idToken);
-        if (authenticatedUserId == req.params.actorId) {
+      
+      if (!actorAuth.role.includes('ADMINISTRATOR')) {
+        if (String(authenticatedUserId) == String(req.params.actorId)) {
           Actor.findOneAndUpdate({ _id: req.params.actorId }, req.body, { new: true }, function (err, actor) {
             if (err) {
               res.send(err);
@@ -208,7 +213,7 @@ exports.update_a_verified_actor = function (req, res) {
           res.status(403); //Auth error
           res.send('The Actor is trying to update an Actor that is not himself!');
         }
-      } else if (actor.role.includes('ADMINISTRATOR')) {
+      } else if (actorAuth.role.includes('ADMINISTRATOR')) {
         Actor.findOneAndUpdate({ _id: req.params.actorId }, req.body, { new: true }, function (err, actor) {
           if (err) {
             res.send(err);
@@ -223,6 +228,7 @@ exports.update_a_verified_actor = function (req, res) {
       }
     }
   });
+});
 };
 
 exports.delete_an_actor = function (req, res) {

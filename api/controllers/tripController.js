@@ -57,16 +57,16 @@ exports.search_trip = function (req, res) {
   var title = req.query.title;
   var ticker = req.query.ticker;
   var description = req.query.description;
-    Trip.find( { $or:[ {'title': {'$regex': '.*' + title + '.*'}}, {'ticker':  {'$regex': '.*' + ticker + '.*'}}, {'description':  {'$regex': '.*' + description + '.*'}} ]}
-      //title:req.query.title
-      , function (err, trips) {
-        if (err) {
-          res.send(err);
-        }
-        else {
-          res.json(trips);
-        }
-      }).limit(10);
+  Trip.find({ $or: [{ 'title': { '$regex': '.*' + title + '.*' } }, { 'ticker': { '$regex': '.*' + ticker + '.*' } }, { 'description': { '$regex': '.*' + description + '.*' } }] }
+    //title:req.query.title
+    , function (err, trips) {
+      if (err) {
+        res.send(err);
+      }
+      else {
+        res.json(trips);
+      }
+    }).limit(10);
 };
 
 
@@ -86,37 +86,42 @@ exports.update_a_trip = function (req, res) {
   if (req.body.applications) {
     for (let application of req.body.applications) {
       if (req.body.status == 'CANCELLED' && application.status.includes('ACCEPTED')) {
-        let err = { "name": 'ValidationError' }
-        res.status(422).send(err);
+        res.status(422).send('You cannot cancel the trip because the trip has accepted applications!');
       }
     }
   }
   if (req.body.status == 'CANCELLED'
     && (!req.body.cancellationReason
       || Date.parse(req.body.dateStart) >= Date.now())) {
-    let err = { "name": 'ValidationError' }
-    res.status(422).send(err);
+    res.status(422).send('You need to include a cancelation reason!');
   } else {
-    Trip.findOneAndUpdate({ _id: req.params.tripId }, req.body, { new: true }, function (err, trip) {
-      var price = 0;
-      console.log(req.params.tripId+ "/"+trip)
-      if (trip.stages) {
-        for (let stage of trip.stages) {
-          price = price + stage.price;
-        }
-        trip.price = price;
-      }
-      if (err) {
-        if (err.name == 'ValidationError') {
-          res.status(422).send(err);
-        }
-        else {
-          res.status(500).send(err);
-        }
-      }
-      else {
-        console.log(trip)
-        res.status(200).json(trip);
+    Trip.findOne({ _id: req.params.tripId }, req.body, { new: true }, function (err, trip) {
+      console.log(trip.status)
+      if (trip.status !== 'PUBLISHED') {
+        trip.save(function (err, trip) {
+          var price = 0;
+          console.log(req.params.tripId + "/" + trip)
+          if (trip.stages) {
+            for (let stage of trip.stages) {
+              price = price + stage.price;
+            }
+            trip.price = price;
+          }
+          if (err) {
+            if (err.name == 'ValidationError') {
+              res.status(422).send(err);
+            }
+            else {
+              res.status(500).send(err);
+            }
+          }
+          else {
+            console.log(trip)
+            res.status(200).json(trip);
+          }
+        });
+      } else {
+        res.status(403).send("You cannot modify this trip as long as is PUBLISHED!");
       }
     });
   }
