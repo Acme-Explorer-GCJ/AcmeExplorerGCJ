@@ -13,6 +13,9 @@ var express = require('express'),
   https = require("https"),
   fs = require("fs");
 
+  const cors = require("cors")
+  app.use(cors())
+
   const keys = {
     key: fs.readFileSync('./keys/server.key'),
     cert: fs.readFileSync('./keys/server.cert')
