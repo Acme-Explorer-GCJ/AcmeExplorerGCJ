@@ -5,6 +5,9 @@ var mongoose = require('mongoose'),
   Trip = mongoose.model('Trips'),
   Actor = mongoose.model('Actors');
 
+  var authController = require('../controllers/authController');
+
+
 exports.list_all_trips = function (req, res) {
   Trip.find(function (err, trips) {
     if (err) {
@@ -17,6 +20,19 @@ exports.list_all_trips = function (req, res) {
   });
 };
 
+exports.list_my_trips = async function (req, res){
+  var idToken = req.headers['idtoken'];
+  var authenticatedUserId = await authController.getUserId(idToken);
+  Trip.find({manager:authenticatedUserId},function(err,trips){
+    if (err) {
+      console.log(Date() + " - " + err);
+      res.status(500).send(err);
+    }
+    else {
+      res.json(trips);
+    }
+  });
+};
 
 exports.create_a_trip = function (req, res) {
   var new_trip = new Trip(req.body);

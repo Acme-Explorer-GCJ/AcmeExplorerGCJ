@@ -19,6 +19,18 @@ module.exports = function(app) {
   .post(authController.verifyUser(["MANAGER"]),trips.create_a_trip);
 
   /**
+   * Manage catalogue of managers trips:
+   * Get trips
+   *    RequiredRoles: Manager
+   *
+   * @section trips
+   * @type get 
+   * @url /v1/mytrips
+   */
+  app.route('/v1/mytrips')
+  .get(authController.verifyUser(["MANAGER"]),trips.list_my_trips);
+
+  /**
    * get results from a search of applications groupBy title
    *    RequiredRoles: None
    *
