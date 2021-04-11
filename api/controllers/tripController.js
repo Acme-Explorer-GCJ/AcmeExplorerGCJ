@@ -70,12 +70,10 @@ exports.create_a_trip = function (req, res) {
 };
 
 exports.search_trip = function (req, res) {
-  console.log('Searching a trip depending on params');
   var title = req.query.title;
   var ticker = req.query.ticker;
   var description = req.query.description;
   Trip.find({ $or: [{ 'title': { '$regex': '.*' + title + '.*' } }, { 'ticker': { '$regex': '.*' + ticker + '.*' } }, { 'description': { '$regex': '.*' + description + '.*' } }] }
-    //title:req.query.title
     , function (err, trips) {
       if (err) {
         res.send(err);

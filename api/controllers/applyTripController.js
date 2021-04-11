@@ -60,21 +60,26 @@ exports.create_application = async function (req, res) {
   var idToken = req.headers['idtoken'];
   var authenticatedUserId = await authController.getUserId(idToken);
 
-    Actor.findOne({ _id: authenticatedUserId }, function (err, actor) {
-      if (err) {
-        res.send(err);
-      } else {
-        if (req.body.trip) {
-          Trip.findById(req.body.trip, function (err, trip) {
-            if (err) {
-              //res.status(500).send(err);
-              res.status(403);
-              res.json("Application cannot be created. Trip does not exist!");
+  Actor.findOne({ _id: authenticatedUserId }, function (err, actor) {
+    if (err) {
+      res.send(err);
+    } else {
+      if (req.body.trip) {
+        Trip.findById(req.body.trip, function (err, trip) {
+          if (err) {
+            //res.status(500).send(err);
+            res.status(403);
+            res.json("Application cannot be created. Trip does not exist!");
 
-            } else {
-              console.log(trip)
-              if (trip.status.includes('PUBLISHED')) {
-                if (!trip.applications){
+          } else {
+            if (trip.status.includes('PUBLISHED')) {
+              if (Date.parse(trip.dateStart) < Date.now()) {
+                res.status(403);
+                res.json("Application cannot be created. Trip has been started!");
+
+              } else {
+
+                if (!trip.applications) {
                   trip.applications = []
                 }
                 trip.applications.push(new_appl)
@@ -106,38 +111,21 @@ exports.create_application = async function (req, res) {
                     res.json(appl);
                   }
                 });
-              } else {
-                res.status(403).send('The trip is not published! You cannot create an application.');
               }
+            } else {
+              res.status(403).send('The trip is not published! You cannot create an application.');
             }
-          });
-        }
+          }
+        });
       }
+    }
   });
 };
 
-exports.search_application = function (req, res) {
+exports.search_application = async function (req, res) {
   var query = {};
-  //if managerId is null, i.e. parameter is not in the URL, the search retrieves applications not assined to any manager
-  //else, the search retrieves applications assined to the specified application
-  query.manager = req.query.managerId;
-
-  if (req.query.cancelled == "true") {
-    //retrieving applications with a statusUpdateMoment
-    query.statusUpdateMoment = { $exists: true }
-  }
-  if (req.query.cancelled == "false") {
-    //retrieving applications without a statusUpdateMoment
-    query.statusUpdateMoment = { $exists: false };
-  }
-  if (req.query.accepted == "true") {
-    //retrieving applications with a statusUpdateMoment
-    query.acceptanceMoment = { $exists: true }
-  }
-  if (req.query.accepted == "false") {
-    //retrieving applications without a statusUpdateMoment
-    query.acceptanceMoment = { $exists: false };
-  }
+  var idToken = req.headers['idtoken'];
+  var authenticatedUserId = await authController.getUserId(idToken);
 
   var skip = 0;
   if (req.query.startFrom) {
@@ -155,10 +143,9 @@ exports.search_application = function (req, res) {
   if (req.query.sortedBy) {
     sort += req.query.sortedBy;
   }
-
+  console.log(req.query.status);
   console.log("Query: " + query + " Skip:" + skip + " Limit:" + limit + " Sort:" + sort);
-
-  ApplyTrip.find(query)
+  ApplyTrip.find({'explorer': authenticatedUserId,'status': req.query.status})
     .sort(sort)
     .skip(skip)
     .limit(limit)
@@ -191,7 +178,7 @@ exports.update_application = async function (req, res) {
 
   var idToken = req.headers['idtoken'];
   var authenticatedUserId = await authController.getUserId(idToken);
-  var new_appl = new ApplyTrip (req.body);
+  var new_appl = new ApplyTrip(req.body);
 
   console.log(authenticatedUserId)
   Actor.findOne({ _id: authenticatedUserId }, function (err, actor) {
@@ -231,47 +218,47 @@ exports.update_application = async function (req, res) {
           res.status(500).send(err);
         }
         else {
-          Trip.findById(application.trip, function(err, trip){
+          Trip.findById(application.trip, function (err, trip) {
             if (err) {
               res.status(500).send(err);
             }
             else {
-          if (String(trip.manager._id) == String(actor.id)) {
-            if (application.status == 'PENDING'
-              && (new_appl.startMoment !== ''
-                || new_appl.cancellationMoment !== ''
-                || new_appl.cancellationReason !== ''
-                || new_appl.explorer !== ''
-                || new_appl.comments !== []
-                || new_appl.total !== ''
-                || new_appl.trip !== '')) {
-              if (new_appl.status == 'REJECTED' || new_appl.status == 'DUE') {
-                console.log("1" + new_appl.status)
-                application.status = new_appl.status;
-                application.save(function (err, appl) {
-                  if (err) {
-                    res.status(500).send(err);
-                  }
-                  else {
-                    res.status(200);
-                    res.json(appl);
-                  }
-                }
-                );
+              if (String(trip.manager._id) == String(actor.id)) {
+                if (application.status == 'PENDING'
+                  && (new_appl.startMoment !== ''
+                    || new_appl.cancellationMoment !== ''
+                    || new_appl.cancellationReason !== ''
+                    || new_appl.explorer !== ''
+                    || new_appl.comments !== []
+                    || new_appl.total !== ''
+                    || new_appl.trip !== '')) {
+                  if (new_appl.status == 'REJECTED' || new_appl.status == 'DUE') {
+                    console.log("1" + new_appl.status)
+                    application.status = new_appl.status;
+                    application.save(function (err, appl) {
+                      if (err) {
+                        res.status(500).send(err);
+                      }
+                      else {
+                        res.status(200);
+                        res.json(appl);
+                      }
+                    }
+                    );
 
+                  } else {
+                    res.status(403).send('You only can edit the status of pending applications to rejected or due!')
+                  }
+                } else {
+                  res.status(403).send('You only can edit the status of pending applications!')
+                }
               } else {
-                res.status(403).send('You only can edit the status of pending applications to rejected or due!')
+                res.status(403).send('You cannot edit this application, you are not the manager of the trip!')
               }
-            } else {
-              res.status(403).send('You only can edit the status of pending applications!')
             }
-          } else {
-            res.status(403).send('You cannot edit this application, you are not the manager of the trip!')
-          }
+          });
         }
       });
-      } 
-    });
     } else {
       res.status(403);
       res.json("You cannot edit others applications!")

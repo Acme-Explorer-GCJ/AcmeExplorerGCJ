@@ -28,7 +28,7 @@ module.exports = function(app) {
    * @param {string} sortedBy (title)
   */
     app.route('/v1/applications/search')
-    .get(applications.search_application);
+    .get(authController.verifyUser(['EXPLORER']),applications.search_application);
 	
   /**
    * Read, update or delete an application: 
