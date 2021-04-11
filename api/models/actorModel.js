@@ -5,6 +5,10 @@ var bcrypt = require('bcrypt');
 
 
 var ActorSchema = new Schema({
+  banned: {
+    type: Boolean,
+    default: false
+  },
   name: {
     type: String,
     required: 'Kindly enter the actor name'
