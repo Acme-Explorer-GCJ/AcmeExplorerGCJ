@@ -197,6 +197,8 @@ exports.update_application = async function (req, res) {
           }
           else {
             if (String(actor._id) == String(application.explorer)) {
+              if(new_appl.status.includes('CANCELLED') && (application.status.includes('PENDING') || application.status.includes('ACCEPTED')) 
+              || !new_appl.status.includes('CANCELLED')){
               ApplyTrip.findOneAndUpdate({ _id: req.params.applicationId }, req.body, { new: true }, function (err, application) {
                 if (err) {
                   res.status(500).send(err);
@@ -205,6 +207,10 @@ exports.update_application = async function (req, res) {
                   res.json(application);
                 }
               });
+            }else{
+              res.status(403);
+              res.json("You cannot cancell an application with status different from pending or an accepted!")
+            }
             } else {
               res.status(403);
               res.json("You cannot edit others explorers applications!")
